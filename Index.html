@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gas Pipeline Hydraulics</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- DARK MODE (DEFAULT) --- */
+        :root {
+            --primary: #3b82f6;       
+            --primary-hover: #2563eb;
+            --bg-color: #0f172a;      
+            --card-bg: #1e293b;       
+            --text-main: #f1f5f9;     
+            --text-muted: #94a3b8;    
+            --border: #334155;        
+            --input-bg: #0f172a;      
+            --highlight-bg: #451a03;  
+            --highlight-border: #f59e0b; 
+            --highlight-text: #fcd34d;   
+            --danger-bg: #450a0a;     
+            --danger-text: #fecaca;   
+            --danger-border: #7f1d1d;
+            --section-header-bg: #1e293b;
+            --unit-badge-bg: #334155;
+            --modal-bg: #1e293b;
+        }
+
+        /* --- LIGHT MODE OVERRIDES --- */
+        body.light-mode {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --input-bg: #f9fafb;
+            --highlight-bg: #fffbeb;
+            --highlight-border: #f59e0b;
+            --highlight-text: #92400e;
+            --danger-bg: #fef2f2;
+            --danger-text: #991b1b;
+            --danger-border: #fecaca;
+            --section-header-bg: #ffffff;
+            --unit-badge-bg: #f1f5f9;
+            --modal-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            line-height: 1.5; 
+            font-size: 14px; 
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* --- Header --- */
+        .app-header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .app-header h1 {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+        .theme-toggle {
+            position: absolute;
+            right: 0;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover {
+            background-color: var(--border);
+            color: var(--primary);
+        }
+
+        /* --- LAYOUT GRID --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 10px; 
+        }
+
+        /* --- CARD STYLES --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+        .card-header i { font-size: 1rem; }
+
+        /* Mode Selector Card */
+        .mode-card {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--section-header-bg);
+        }
+        .mode-label {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .mode-select {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background-color: var(--input-bg);
+            min-width: 300px;
+            font-weight: 500;
+            color: var(--primary);
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        /* --- Internal Layouts --- */
+        .card-section-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- Input Styling --- */
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            margin-bottom: 20px; 
+        }
+        .input-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+        .input-wrapper { display: flex; position: relative; }
+        .input-wrapper input, .input-wrapper select.main-select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s;
+        }
+        .input-wrapper input {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-right: 0;
+        }
+        .unit-badge {
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            background-color: var(--unit-badge-bg);
+            border: 1px solid var(--border);
+            border-radius: 0 6px 6px 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .unit-select {
+            border: none;
+            background: transparent;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+        .unit-select option { background-color: var(--card-bg); color: var(--text-main); }
+        
+        .input-wrapper input:focus {
+            background-color: var(--card-bg);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            z-index: 10;
+        }
+
+        /* Target Result Highlight */
+        .is-target-result {
+            background-color: var(--highlight-bg) !important;
+            border-color: var(--highlight-border) !important;
+            color: var(--highlight-text) !important;
+            font-weight: 700 !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+        }
+        .is-target-result + .unit-badge {
+            background-color: var(--highlight-bg);
+            border-color: var(--highlight-border);
+            color: var(--highlight-text);
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .checkbox-row input { accent-color: var(--primary); cursor: pointer; transform: scale(1.1); }
+        
+        .sub-select {
+            border: none; background: transparent; font-weight: 600; color: var(--primary); cursor: pointer; font-size: 0.85rem;
+        }
+        .sub-select option { background-color: var(--card-bg); color: var(--text-main); }
+
+        /* --- Results & Warning --- */
+        .warning-box {
+            background-color: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            color: var(--danger-text);
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            display: none; 
+        }
+        .warning-box.visible { display: flex; }
+
+        .diagnostic-input {
+            background: var(--input-bg) !important; 
+            border: 1px solid transparent !important; 
+            border-radius: 6px; 
+            padding: 10px 12px; 
+            width: 100%;
+            color: var(--text-muted) !important;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+
+        /* --- Bottom Control Bar --- */
+        .control-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 10px;
+            margin-top: 10px;
+            background: transparent;
+            border: none;
+        }
+        .btn-calculate {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        .btn-calculate:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+        .btn-details {
+            color: var(--text-muted);
+            font-size: 1rem;
+            text-decoration: none;
+            cursor: pointer;
+            border-bottom: 1px dashed var(--border);
+            margin-right: 25px;
+        }
+        .btn-details:hover { color: var(--primary); border-color: var(--primary); }
+        .footer-note { font-size: 0.9rem; color: var(--text-muted); font-style: italic; }
+
+        /* --- Modal --- */
+        .modal-overlay {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(2px);
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.visible { display: flex; }
+        .modal-content {
+            background-color: var(--modal-bg); padding: 30px; border-radius: 12px;
+            width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .modal-header h2 { font-size: 1.4rem; font-weight: 600; color: var(--text-main); }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+        .report-section { margin-bottom: 25px; }
+        .report-section h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; border-left: 3px solid var(--primary); padding-left: 10px; }
+        .report-line { font-family: 'Courier New', monospace; font-size: 0.95rem; background: var(--input-bg); padding: 10px 14px; margin-bottom: 4px; border-radius: 4px; display: flex; justify-content: space-between; }
+        .report-val { font-weight: 700; color: var(--text-main); }
+
+        @media (max-width: 768px) {
+            .mode-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .mode-select { width: 100%; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .control-bar { flex-direction: column-reverse; gap: 20px; text-align: center; }
+            .btn-calculate { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-content">
+    
+    <header class="app-header">
+        <h1>Gas Pipeline Hydraulics</h1>
+        <button id="themeToggle" class="theme-toggle" title="Switch Theme">
+            <i class="fas fa-sun"></i>
+        </button>
+    </header>
+
+    <div class="card mode-card" style="margin-bottom: 20px;">
+        <div class="mode-label">
+            <i class="fas fa-calculator"></i>
+            <span>Calculation Goal:</span>
+        </div>
+        <select id="calculationMode" class="mode-select">
+            <option value="flowRate">Flow Rate (Capacity)</option>
+            <option value="downstreamPressure">Downstream Pressure (P2)</option>
+            <option value="pipeDiameter">Required Pipe Diameter (ID)</option>
+        </select>
+    </div>
+
+    <div class="dashboard-grid">
+        
+        <div class="card">
+            <div class="card-header"><i class="fas fa-cog"></i> Configuration</div>
+            
+            <div class="input-group">
+                <label>Nominal Pipe Size (NPS)</label>
+                <div class="input-wrapper">
+                    <select id="nominalDiameter" class="main-select">
+                        <option value="" disabled>Select Standard Size</option>
+                        <option value="60.3">2" (60.3 mm)</option>
+                        <option value="88.9">3" (88.9 mm)</option>
+                        <option value="114.3">4" (114.3 mm)</option>
+                        <option value="168.3">6" (168.3 mm)</option>
+                        <option value="219.1">8" (219.1 mm)</option>
+                        <option value="273.1">10" (273.1 mm)</option>
+                        <option value="323.9">12" (323.9 mm)</option>
+                        <option value="355.6">14" (355.6 mm)</option>
+                        <option value="406.4">16" (406.4 mm)</option>
+                        <option value="457.2">18" (457.2 mm)</option>
+                        <option value="508.0">20" (508.0 mm)</option>
+                        <option value="558.8">22" (558.8 mm)</option>
+                        <option value="609.6">24" (609.6 mm)</option>
+                        <option value="660.4">26" (660.4 mm)</option>
+                        <option value="711.2">28" (711.2 mm)</option>
+                        <option value="762.0" selected>30" (762.0 mm)</option>
+                        <option value="812.8">32" (812.8 mm)</option>
+                        <option value="863.6">34" (863.6 mm)</option>
+                        <option value="914.4">36" (914.4 mm)</option>
+                        <option value="965.2">38" (965.2 mm)</option>
+                        <option value="1016.0">40" (1016.0 mm)</option>
+                        <option value="1066.8">42" (1066.8 mm)</option>
+                        <option value="1117.6">44" (1117.6 mm)</option>
+                        <option value="1168.4">46" (1168.4 mm)</option>
+                        <option value="1219.2">48" (1219.2 mm)</option>
+                        <option value="1320.8">52" (1320.8 mm)</option>
+                        <option value="1422.4">56" (1422.4 mm)</option>
+                        <option value="1524.0">60" (1524.0 mm)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Outside Diameter</label>
+                <div class="input-wrapper">
+                    <input type="number" id="outsideDiameter" value="30.000" step="0.001">
+                    <div class="unit-badge"><select class="unit-select" data-field="outsideDiameter"><option value="inch">in</option><option value="mm">mm</option></select></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Wall Thickness</label>
+                <div class="input-wrapper">
+                    <input type="number" id="wallThickness" value="14.5" step="0.001">
+                    <div class="unit-badge"><select class="unit-select" data-field="wallThickness"><option value="inch">in</option><option value="mm" selected>mm</option></select></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Internal Diameter</label>
+                <div class="input-wrapper">
+                    <input type="number" id="internalDiameter" step="0.001">
+                    <div class="unit-badge"><select class="unit-select" data-field="internalDiameter"><option value="inch">in</option><option value="mm">mm</option></select></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Pipe Material</label>
+                <div class="input-wrapper">
+                    <select id="pipeMaterial" class="main-select">
+                        <option value="Steel" selected>Steel (New)</option>
+                        <option value="Plastic">Plastic (PE)</option>
+                        <option value="Cast Iron">Cast Iron</option>
+                        <option value="Custom">Custom / Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Absolute Roughness</label>
+                <div class="input-wrapper">
+                    <input type="number" id="pipeRoughness" value="0.0178" step="0.0001">
+                    <div class="unit-badge"><select class="unit-select" data-field="pipeRoughness"><option value="inch">in</option><option value="mm" selected>mm</option></select></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Pipe Length</label>
+                <div class="input-wrapper">
+                    <input type="number" id="pipeLength" value="79.23" step="0.01">
+                    <div class="unit-badge"><select class="unit-select" data-field="pipeLength"><option value="mile">mi</option><option value="km" selected>km</option><option value="ft">ft</option></select></div>
+                </div>
+            </div>
+
+            <div class="card-section-title">Fluid Properties</div>
+
+            <div class="input-group">
+                <label>Specific Gravity</label>
+                <div class="input-wrapper"><input type="number" id="specificGravity" value="0.600" step="0.001"></div>
+            </div>
+            
+            <div class="input-group">
+                <label>Gas Viscosity (cP)</label>
+                <div class="input-wrapper"><input type="number" id="gasViscosity" value="0.010" step="0.001"></div>
+            </div>
+
+            <div class="input-group">
+                <label>Compressibility Factor (Z)</label>
+                <div class="input-wrapper"><input type="number" id="compressibilityFactor" value="0.85" step="0.0001"></div>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="autoCalculateZ" checked>
+                    <label for="autoCalculateZ">Auto-Calculate (CNGA Method)</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-gauge-high"></i> Process Conditions</div>
+            
+            <div class="input-group">
+                <label>Flow Rate (Q)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="flowRate" value="12.00">
+                    <div class="unit-badge">
+                        <select class="unit-select" data-field="flowRate">
+                            <option value="MMSCFD">MMSCFD</option>
+                            <option value="SCMH">SCMH</option>
+                            <option value="MMSCMD" selected>MMSCMD</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Upstream Pressure (P1)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="pressureUpstream" value="90.00">
+                    <div class="unit-badge"><select class="unit-select" data-field="pressureUpstream"><option value="psig">psig</option><option value="barg">barg</option><option value="kg/cm2" selected>kg/cm²</option></select></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Downstream Pressure (P2)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="pressureDownstream" value="86.00">
+                    <div class="unit-badge"><select class="unit-select" data-field="pressureDownstream"><option value="psig">psig</option><option value="barg">barg</option><option value="kg/cm2" selected>kg/cm²</option></select></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Upstream Elevation</label>
+                <div class="input-wrapper">
+                    <input type="number" id="upstreamElevation" value="100">
+                    <div class="unit-badge"><select class="unit-select" data-field="upstreamElevation"><option value="ft">ft</option><option value="m" selected>m</option></select></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Downstream Elevation</label>
+                <div class="input-wrapper">
+                    <input type="number" id="downstreamElevation" value="100">
+                    <div class="unit-badge"><select class="unit-select" data-field="downstreamElevation"><option value="ft">ft</option><option value="m" selected>m</option></select></div>
+                </div>
+            </div>
+
+            <div class="card-section-title">Standard Conditions</div>
+
+            <div class="input-group">
+                <label>Operating Temperature</label>
+                <div class="input-wrapper"><input type="number" id="opTemperature" value="25.0"><div class="unit-badge"><select class="unit-select" data-field="opTemperature"><option value="°F">°F</option><option value="°C" selected>°C</option></select></div></div>
+            </div>
+
+            <div class="input-group">
+                <label>Base Temperature</label>
+                <div class="input-wrapper"><input type="number" id="baseTemperature" value="15.0"><div class="unit-badge"><select class="unit-select" data-field="baseTemperature"><option value="°F">°F</option><option value="°C" selected>°C</option></select></div></div>
+            </div>
+
+            <div class="input-group">
+                <label>Base Pressure</label>
+                <div class="input-wrapper"><input type="number" id="basePressure" value="1.01325"><div class="unit-badge"><select class="unit-select" data-field="basePressure"><option value="psia">psia</option><option value="bara" selected>bara</option></select></div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-chart-line"></i> Diagnostics</div>
+            
+            <div id="reynoldsWarning" class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><strong>Warning:</strong> Re < 4000 (Laminar). Equation Inaccurate.</span>
+            </div>
+
+            <div class="input-group">
+                <label>Reynolds Number (Re)</label>
+                <input type="text" id="reynoldsNumber" readonly class="diagnostic-input">
+            </div>
+
+            <div class="input-group">
+                <label>Transmission Factor (F)</label>
+                <input type="text" id="transmissionFactor" readonly class="diagnostic-input">
+            </div>
+
+            <div class="input-group">
+                <label>Gas Velocity</label>
+                <div class="input-wrapper">
+                    <input type="text" id="velocity" readonly class="diagnostic-input">
+                    <div class="unit-badge" style="background:var(--unit-badge-bg); border-color:transparent;"><select class="unit-select" data-field="velocity"><option value="ft/sec">ft/sec</option><option value="m/s" selected>m/s</option></select></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <label style="margin:0;">Erosional Velocity</label>
+                    <div class="checkbox-row" style="margin:0;">
+                        <span>C-Factor=</span>
+                        <select id="cFactorSelector" class="sub-select">
+                            <option value="100" selected>100</option>
+                            <option value="125">125</option>
+                            <option value="150">150</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-wrapper">
+                    <input type="text" id="erosionalVelocity" readonly class="diagnostic-input">
+                    <div class="unit-badge" style="background:var(--unit-badge-bg); border-color:transparent;"><select class="unit-select" data-field="erosionalVelocity"><option value="ft/sec">ft/sec</option><option value="m/s" selected>m/s</option></select></div>
+                </div>
+            </div>
+
+             <div class="input-group">
+                <label>Sonic Velocity</label>
+                <div class="input-wrapper">
+                    <input type="text" id="sonicVelocity" readonly class="diagnostic-input">
+                    <div class="unit-badge" style="background:var(--unit-badge-bg); border-color:transparent;"><select class="unit-select" data-field="sonicVelocity"><option value="ft/sec">ft/sec</option><option value="m/s" selected>m/s</option></select></div>
+                </div>
+            </div>
+            <input type="hidden" id="specificHeatRatio" value="1.3">
+        </div>
+
+    </div>
+
+    <div class="control-bar">
+        <span class="footer-note">AGA Fully Turbulent Flow Equation</span>
+        <div>
+            <a id="showDetailsBtn" class="btn-details">View Breakdown</a>
+            <button id="calculateBtn" class="btn-calculate">Calculate</button>
+        </div>
+    </div>
+</div>
+
+<div id="detailsModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Calculation Details</h2>
+            <button id="closeModalBtn" class="close-btn">&times;</button>
+        </div>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentMode = 'flowRate';
+        let calculationReportData = {}; 
+
+        // --- CONSTANTS & CONVERSIONS ---
+        const CONVERSION_FACTORS = {
+            length: { mile: 1, km: 0.621371, ft: 1 / 5280 },
+            diameter: { inch: 1, mm: 1 / 25.4 },
+            pressure: { psig: 1, barg: 14.5038, kPa: 0.145038, 'kg/cm2': 14.2233 },
+            abs_pressure: { psia: 1, bara: 14.5038 },
+            temperature: { '°F': { toBase: f => f, fromBase: f => f }, '°C': { toBase: c => (c * 9/5) + 32, fromBase: f => (f - 32) * 5/9 } },
+            elevation: { ft: 1, m: 3.28084 },
+            flow: { MCFD: 1, MMSCFD: 1000, SCMH: (35.3147 * 24) / 1000, SCMD: 35.3147 / 1000, MMSCMD: (1000000 * 35.3147) / 1000 },
+            velocity: { 'ft/sec': 1, 'm/s': 3.28084 }
+        };
+
+        // Roughness Defaults in Millimeters
+        // Reverted 'Steel' to 0.0178 to match previous results.
+        const ROUGHNESS_DEFAULTS = { 
+            'Steel': 0.0178, 
+            'Plastic': 0.0015, 
+            'Cast Iron': 0.26, 
+            'Custom': 0.0178 
+        };
+
+        // --- DOM ELEMENTS ---
+        const fields = {};
+        const elementsToMap = ['nominalDiameter', 'outsideDiameter', 'wallThickness', 'internalDiameter', 'pipeLength', 'pipeRoughness', 'opTemperature', 'baseTemperature', 'basePressure', 'pressureUpstream', 'pressureDownstream', 'flowRate', 'specificGravity', 'compressibilityFactor', 'transmissionFactor', 'velocity', 'erosionalVelocity', 'sonicVelocity', 'upstreamElevation', 'downstreamElevation', 'specificHeatRatio', 'gasViscosity', 'reynoldsNumber'];
+        elementsToMap.forEach(id => { fields[id] = document.getElementById(id); });
+
+        const calculateBtn = document.getElementById('calculateBtn');
+        const modeSelect = document.getElementById('calculationMode');
+        const unitSelectors = document.querySelectorAll('.unit-select');
+        const cFactorSelector = document.getElementById('cFactorSelector');
+        const autoCalculateZCheckbox = document.getElementById('autoCalculateZ');
+        const reynoldsWarning = document.getElementById('reynoldsWarning');
+        const modal = document.getElementById('detailsModal');
+        const showDetailsBtn = document.getElementById('showDetailsBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const pipeMaterialSelect = document.getElementById('pipeMaterial');
+
+        // --- LOGIC ---
+
+        // 0. Theme Toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            themeToggle.innerHTML = isLight ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        });
+
+        // 0.1 Material Dropdown Logic
+        pipeMaterialSelect.addEventListener('change', () => {
+            const material = pipeMaterialSelect.value;
+            if (ROUGHNESS_DEFAULTS[material] !== undefined) {
+                const currentUnit = fields.pipeRoughness.dataset.currentUnit || 'mm';
+                const baseMM = ROUGHNESS_DEFAULTS[material];
+                
+                let valToSet = baseMM;
+                if (currentUnit === 'inch') {
+                    valToSet = baseMM / 25.4;
+                }
+                
+                const precision = (currentUnit === 'inch') ? 5 : 4;
+                fields.pipeRoughness.value = valToSet.toFixed(precision);
+                performCalculations();
+            }
+        });
+        
+        // 1. Handling Calculation Mode Changes
+        modeSelect.addEventListener('change', (e) => {
+            currentMode = e.target.value;
+            updateUIForMode();
+            performCalculations(); 
+        });
+
+        function updateUIForMode() {
+            const allTargets = [fields.flowRate, fields.pressureDownstream, fields.internalDiameter];
+            allTargets.forEach(el => {
+                el.readOnly = false;
+                el.classList.remove('is-target-result');
+            });
+
+            let targetField;
+            switch(currentMode) {
+                case 'flowRate': targetField = fields.flowRate; break;
+                case 'downstreamPressure': targetField = fields.pressureDownstream; break;
+                case 'pipeDiameter': targetField = fields.internalDiameter; break;
+            }
+
+            if(targetField) {
+                targetField.readOnly = true;
+                targetField.classList.add('is-target-result');
+            }
+        }
+
+        // 2. Unit Conversion Handling
+        function getFieldType(fieldName) {
+            if (fieldName.toLowerCase().includes('pressure')) return fieldName.includes('base') ? 'abs_pressure' : 'pressure';
+            if (fieldName.toLowerCase().includes('temperature')) return 'temperature';
+            if (fieldName.toLowerCase().includes('elevation')) return 'elevation';
+            if (['outsideDiameter', 'wallThickness', 'internalDiameter', 'pipeRoughness'].includes(fieldName)) return 'diameter';
+            if (fieldName === 'pipeLength') return 'length';
+            if (fieldName.toLowerCase().includes('velocity')) return 'velocity';
+            return 'flow';
+        }
+
+        function handleUnitChange(selector) {
+            const fieldName = selector.dataset.field;
+            const fieldInput = fields[fieldName];
+            if (!fieldInput) return;
+            
+            const isOutput = fieldInput.readOnly && fieldName !== "compressibilityFactor"; 
+            
+            let currentDisplayValue;
+            if (isOutput && fieldInput.dataset.baseResult) {
+                currentDisplayValue = parseFloat(fieldInput.dataset.baseResult);
+            } else {
+                currentDisplayValue = parseFloat(fieldInput.value);
+            }
+            if (isNaN(currentDisplayValue)) return;
+
+            const newUnit = selector.value;
+            const oldUnit = fieldInput.dataset.currentUnit || selector.options[0].value; 
+            const fieldType = getFieldType(fieldName);
+
+            let baseValue;
+            if(isOutput && fieldInput.dataset.baseResult) {
+                baseValue = parseFloat(fieldInput.dataset.baseResult);
+            } else {
+                 if (fieldType === 'temperature') {
+                    baseValue = CONVERSION_FACTORS.temperature[oldUnit].toBase(currentDisplayValue);
+                } else {
+                    baseValue = currentDisplayValue * CONVERSION_FACTORS[fieldType][oldUnit];
+                }
+            }
+
+            let newValue;
+            if (fieldType === 'temperature') {
+                const tempInF = isOutput ? baseValue - 459.67 : baseValue;
+                newValue = CONVERSION_FACTORS.temperature[newUnit].fromBase(tempInF);
+            } else {
+                newValue = baseValue / CONVERSION_FACTORS[fieldType][newUnit];
+            }
+
+            const precision = (['diameter', 'pipeLength', 'elevation'].includes(fieldType)) ? 4 : 2;
+            const displayPrecision = (fieldName === 'pipeRoughness' && newUnit === 'inch') ? 5 : precision;
+            
+            fieldInput.value = newValue.toFixed(displayPrecision);
+            fieldInput.dataset.currentUnit = newUnit;
+        }
+
+        unitSelectors.forEach(s => {
+            const field = fields[s.dataset.field];
+            if(field) field.dataset.currentUnit = s.value;
+            s.addEventListener('change', (e) => handleUnitChange(e.target));
+        });
+
+        // 3. Pipe Geometry Helpers
+        fields.nominalDiameter.addEventListener('change', () => {
+            const nominalMM = parseFloat(fields.nominalDiameter.value);
+            if(nominalMM) {
+                const odInch = nominalMM / 25.4;
+                setDisplayUnitValue('outsideDiameter', odInch, 'diameter');
+                updateInternalDiameter();
+            }
+        });
+
+        function updateInternalDiameter() {
+            if (currentMode === 'pipeDiameter') return; 
+            const od = getBaseUnitValue('outsideDiameter');
+            const wt = getBaseUnitValue('wallThickness');
+            if (!isNaN(od) && !isNaN(wt)) {
+                const idBase = od - 2 * wt;
+                setDisplayUnitValue('internalDiameter', idBase, 'diameter');
+            }
+        }
+        
+        fields.outsideDiameter.addEventListener('input', updateInternalDiameter);
+        fields.wallThickness.addEventListener('input', updateInternalDiameter);
+
+        // 4. Z-Factor Logic
+        autoCalculateZCheckbox.addEventListener('change', () => {
+            if(autoCalculateZCheckbox.checked) {
+                fields.compressibilityFactor.readOnly = true;
+                fields.compressibilityFactor.style.backgroundColor = 'var(--section-header-bg)';
+                performCalculations();
+            } else {
+                fields.compressibilityFactor.readOnly = false;
+                fields.compressibilityFactor.style.backgroundColor = 'var(--input-bg)';
+            }
+        });
+
+        // 5. Utility: Get/Set Values respecting units
+        function getBaseUnitValue(fieldName) {
+            const field = fields[fieldName];
+            if (!field) return NaN;
+            const val = parseFloat(field.value);
+            if (isNaN(val)) return NaN;
+            const unit = field.dataset.currentUnit;
+            const type = getFieldType(fieldName);
+            
+            if (type === 'temperature') return CONVERSION_FACTORS.temperature[unit].toBase(val) + 459.67; 
+            return val * CONVERSION_FACTORS[type][unit];
+        }
+
+        function setDisplayUnitValue(fieldName, baseValue, fieldType) {
+            const field = fields[fieldName];
+            if(!field) return;
+            
+            field.dataset.baseResult = baseValue; 
+            const unit = field.dataset.currentUnit;
+            
+            let displayVal;
+            if (fieldType === 'temperature') {
+                displayVal = CONVERSION_FACTORS.temperature[unit].fromBase(baseValue - 459.67);
+            } else {
+                displayVal = baseValue / CONVERSION_FACTORS[fieldType][unit];
+            }
+            
+            const precision = (['diameter', 'pipeLength', 'elevation'].includes(fieldType)) ? 4 : 2;
+            const displayPrecision = (fieldName === 'pipeRoughness' && unit === 'inch') ? 5 : precision;
+
+            field.value = displayVal.toFixed(displayPrecision);
+        }
+
+        // 6. MAIN CALCULATION ENGINE
+        calculateBtn.addEventListener('click', performCalculations);
+        cFactorSelector.addEventListener('change', performCalculations);
+
+        function performCalculations() {
+            try {
+                calculationReportData = {};
+
+                const Tb_R = getBaseUnitValue('baseTemperature');
+                const T_avg_R = getBaseUnitValue('opTemperature');
+                const Pb_psia = getBaseUnitValue('basePressure');
+                const L_miles = getBaseUnitValue('pipeLength');
+                const D_in_base = getBaseUnitValue('internalDiameter');
+                const e_in = getBaseUnitValue('pipeRoughness');
+                const G = parseFloat(fields.specificGravity.value);
+                const k = parseFloat(document.getElementById('specificHeatRatio').value);
+                const viscosity_cP = parseFloat(fields.gasViscosity.value);
+                const H1_ft = getBaseUnitValue('upstreamElevation');
+                const H2_ft = getBaseUnitValue('downstreamElevation');
+
+                let Z = parseFloat(fields.compressibilityFactor.value);
+                if(autoCalculateZCheckbox.checked) {
+                    let P_est_psia;
+                    if(currentMode === 'downstreamPressure') {
+                        P_est_psia = getBaseUnitValue('pressureUpstream') + Pb_psia;
+                    } else {
+                        const p1 = getBaseUnitValue('pressureUpstream') + Pb_psia;
+                        const p2 = getBaseUnitValue('pressureDownstream') + Pb_psia;
+                        P_est_psia = (p1 + p2) / 2;
+                    }
+                    if(!isNaN(P_est_psia)) {
+                        const P_avg_psig = P_est_psia - 14.7;
+                        if(P_avg_psig > 0) {
+                             const num = 344400 * P_avg_psig * Math.pow(10, 1.785 * G);
+                             const den = Math.pow(T_avg_R, 3.825);
+                             Z = 1 / (1 + (num/den));
+                             fields.compressibilityFactor.value = Z.toFixed(4);
+                        } else {
+                            Z = 1.0;
+                            fields.compressibilityFactor.value = "1.0000";
+                        }
+                    }
+                }
+
+                if ([Tb_R, T_avg_R, Pb_psia, L_miles, e_in, G, Z].some(isNaN)) return;
+
+                const F = 4 * Math.log10(3.7 * (D_in_base||1) / e_in);
+                const s = (0.0375 * G * (H2_ft - H1_ft)) / (T_avg_R * Z);
+                const es = Math.exp(s);
+                
+                let P1_psia, P2_psia, Q_scfd;
+                let friction_term = null, pressure_term = null;
+
+                if (currentMode === 'downstreamPressure') {
+                    P1_psia = getBaseUnitValue('pressureUpstream') + Pb_psia;
+                    const Q_mcfd = getBaseUnitValue('flowRate');
+                    Q_scfd = Q_mcfd * 1000;
+                    
+                    friction_term = (Math.pow(Q_scfd / (38.77 * F * (Tb_R / Pb_psia)), 2) * (G * T_avg_R * L_miles * Z) / Math.pow(D_in_base, 5));
+                    const P2_sq = (Math.pow(P1_psia, 2) - friction_term) / es;
+                    
+                    if(P2_sq < 0) throw new Error("Pressure loss exceeds upstream pressure.");
+                    P2_psia = Math.sqrt(P2_sq);
+                    setDisplayUnitValue('pressureDownstream', P2_psia - Pb_psia, 'pressure');
+
+                } else if (currentMode === 'flowRate') {
+                    P1_psia = getBaseUnitValue('pressureUpstream') + Pb_psia;
+                    P2_psia = getBaseUnitValue('pressureDownstream') + Pb_psia;
+                    
+                    pressure_term = Math.pow(P1_psia, 2) - Math.pow(P2_psia, 2) * es;
+                    if(pressure_term < 0) throw new Error("Upstream pressure < Downstream pressure (adjusted for elevation).");
+                    
+                    const flow_term = Math.sqrt(pressure_term / (G * T_avg_R * L_miles * Z));
+                    Q_scfd = 38.77 * F * (Tb_R / Pb_psia) * flow_term * Math.pow(D_in_base, 2.5);
+                    setDisplayUnitValue('flowRate', Q_scfd / 1000, 'flow');
+
+                } else if (currentMode === 'pipeDiameter') {
+                    P1_psia = getBaseUnitValue('pressureUpstream') + Pb_psia;
+                    P2_psia = getBaseUnitValue('pressureDownstream') + Pb_psia;
+                    const Q_mcfd = getBaseUnitValue('flowRate');
+                    Q_scfd = Q_mcfd * 1000;
+
+                    pressure_term = Math.pow(P1_psia, 2) - Math.pow(P2_psia, 2) * es;
+                    if(pressure_term < 0) throw new Error("Invalid pressures.");
+                    
+                    const dia_term_sq = (Math.pow(Q_scfd, 2) * G * T_avg_R * L_miles * Z) / (Math.pow(38.77 * F * (Tb_R / Pb_psia), 2) * pressure_term);
+                    const calc_D = Math.pow(dia_term_sq, 1/5);
+                    setDisplayUnitValue('internalDiameter', calc_D, 'diameter');
+                }
+
+                if(!P1_psia) P1_psia = getBaseUnitValue('pressureUpstream') + Pb_psia;
+                if(!P2_psia) P2_psia = getBaseUnitValue('pressureDownstream') + Pb_psia;
+                const final_D = getBaseUnitValue('internalDiameter');
+                const final_Q = getBaseUnitValue('flowRate') * 1000;
+
+                const P_avg = (P1_psia + P2_psia) / 2;
+                const vel = (0.0000749 * final_Q * Z * T_avg_R) / (P_avg * Math.pow(final_D, 2));
+                const dens = (2.694 * G * P_avg) / (Z * T_avg_R);
+                const cFactor = parseFloat(cFactorSelector.value);
+                const erosional = cFactor / Math.sqrt(dens);
+                const sonic = Math.sqrt(k * 32.174 * Z * 96.3 * T_avg_R);
+                const Re = (0.48 * final_Q * G) / (viscosity_cP * final_D);
+
+                fields.transmissionFactor.value = F.toFixed(3);
+                fields.reynoldsNumber.value = Re.toExponential(2);
+                reynoldsWarning.className = (Re < 4000) ? 'warning-box visible' : 'warning-box';
+
+                setDisplayUnitValue('velocity', vel, 'velocity');
+                setDisplayUnitValue('erosionalVelocity', erosional, 'velocity');
+                setDisplayUnitValue('sonicVelocity', sonic, 'velocity');
+
+                calculationReportData = { 
+                    P1: P1_psia, P2: P2_psia, Q: final_Q, D: final_D, L: L_miles,
+                    F, s, es, Re, Z, vel, erosional, sonic, mode: currentMode 
+                };
+
+            } catch(e) {
+                console.log(e);
+            }
+        }
+
+        showDetailsBtn.addEventListener('click', () => {
+            if(!calculationReportData.P1) { alert("Please calculate first."); return; }
+            const d = calculationReportData;
+            const html = `
+                <div class="report-section">
+                    <h3>Key Results</h3>
+                    <div class="report-line"><span>Upstream Pressure</span> <span class="report-val">${d.P1.toFixed(2)} psia</span></div>
+                    <div class="report-line"><span>Downstream Pressure</span> <span class="report-val">${d.P2.toFixed(2)} psia</span></div>
+                    <div class="report-line"><span>Flow Rate</span> <span class="report-val">${d.Q.toExponential(3)} SCFD</span></div>
+                </div>
+                <div class="report-section">
+                    <h3>Flow Characteristics</h3>
+                    <div class="report-line"><span>Reynolds Number</span> <span class="report-val">${d.Re.toExponential(2)}</span></div>
+                    <div class="report-line"><span>Transmission Factor (F)</span> <span class="report-val">${d.F.toFixed(3)}</span></div>
+                    <div class="report-line"><span>Elevation Factor (s)</span> <span class="report-val">${d.s.toFixed(4)}</span></div>
+                    <div class="report-line"><span>Compressibility (Z)</span> <span class="report-val">${d.Z.toFixed(4)}</span></div>
+                </div>
+                <div class="report-section">
+                    <h3>Velocities</h3>
+                    <div class="report-line"><span>Actual Gas Velocity</span> <span class="report-val">${d.vel.toFixed(2)} ft/s</span></div>
+                    <div class="report-line"><span>Erosional Limit</span> <span class="report-val">${d.erosional.toFixed(2)} ft/s</span></div>
+                    <div class="report-line"><span>Sonic Velocity</span> <span class="report-val">${d.sonic.toFixed(2)} ft/s</span></div>
+                </div>
+            `;
+            document.getElementById('modalBody').innerHTML = html;
+            modal.classList.add('visible');
+        });
+        
+        closeModalBtn.addEventListener('click', () => modal.classList.remove('visible'));
+        window.onclick = (e) => { if (e.target == modal) modal.classList.remove('visible'); }
+
+        // Initial Logic
+        const initMaterial = 'Steel';
+        if (ROUGHNESS_DEFAULTS[initMaterial] !== undefined) {
+             fields.pipeRoughness.value = ROUGHNESS_DEFAULTS[initMaterial].toFixed(4);
+        }
+        updateUIForMode();
+        updateInternalDiameter();
+        performCalculations();
+    });
+</script>
+
+</body>
+</html>
