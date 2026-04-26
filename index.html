@@ -157,7 +157,7 @@
         
         @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; } }
         
-        /* Mobile Spacing Fixes (Prevents Header Overlap) */
+        /* Mobile Spacing Fixes */
         @media (max-width: 768px) { 
             .container { padding: 1.5rem 1rem 6rem 1rem; } 
             .header-controls { top: 1.5rem; right: 1rem; }
@@ -261,26 +261,26 @@
             margin-top: 1rem;
         }
         .btn-calculate:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 165, 168, 0.4); }
-        
-        .btn-outline {
-            background: transparent; border: 1px dashed var(--accent-teal); color: var(--accent-teal);
-            padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
-            transition: all 0.3s; width: 100%; margin-top: 10px;
-        }
-        .btn-outline:hover { background: var(--accent-teal); color: #fff; }
 
-        /* --- MODALS --- */
+        /* --- MODALS & BREAKDOWN UI --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-content { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; width: 90%; max-width: 600px; padding: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); backdrop-filter: blur(20px); max-height: 85vh; overflow-y: auto;}
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
-        .modal-title { color: var(--text-primary); font-weight: 700; font-size: 1.2rem; }
-        .modal-close { background: transparent; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; transition: 0.2s;}
+        .modal-content { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; width: 90%; max-width: 700px; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); backdrop-filter: blur(20px); max-height: 85vh; overflow-y: auto;}
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 15px; }
+        .modal-title { color: var(--text-primary); font-weight: 700; font-size: 1.3rem; }
+        .modal-close { background: transparent; border: none; color: var(--text-secondary); font-size: 1.8rem; cursor: pointer; transition: 0.2s;}
         .modal-close:hover { color: var(--text-primary); }
 
-        .report-section { margin-bottom: 20px; }
-        .report-section h3 { font-size: 0.9rem; font-weight: 700; color: var(--accent-teal); margin-bottom: 10px; border-bottom: 1px solid var(--card-border); padding-bottom: 4px; text-transform: uppercase; }
-        .report-line { font-family: 'Plus Jakarta Sans', monospace; font-size: 0.9rem; background: var(--input-bg); border: 1px solid var(--input-border); padding: 8px 12px; margin-bottom: 6px; border-radius: 6px; display: flex; justify-content: space-between; color: var(--text-secondary);}
-        .report-val { font-weight: 700; color: var(--text-primary); }
+        .report-section { margin-bottom: 25px; }
+        .report-section h3 { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; display: flex; align-items: center; gap: 10px;}
+        .step-num { background: var(--accent-teal); color: #fff; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.75rem; }
+        
+        .formula-block { background: var(--input-bg); border: 1px dashed var(--card-border); padding: 15px; border-radius: 8px; margin-bottom: 12px; font-family: 'Plus Jakarta Sans', monospace; font-size: 0.85rem; color: var(--text-secondary); overflow-x: auto; }
+        .formula-line { margin-bottom: 8px; }
+        .formula-line:last-child { margin-bottom: 0; }
+        .formula-sub { color: var(--accent-teal); font-weight: 600; }
+        
+        .report-line { font-family: 'Plus Jakarta Sans', monospace; font-size: 0.95rem; background: var(--metric-bg); border: 1px solid var(--input-border); padding: 10px 15px; margin-bottom: 6px; border-radius: 6px; display: flex; justify-content: space-between; color: var(--text-secondary); align-items: center;}
+        .report-val { font-weight: 800; color: var(--text-primary); }
         
         .scenario-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--card-border); background: var(--metric-bg); border-radius: 6px; margin-bottom: 5px;}
         .btn-action { background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-primary); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s;}
@@ -302,24 +302,51 @@
         @keyframes footerTextSweep { to { background-position: 300% center; } }
         @keyframes tickerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* --- PRINT STYLES --- */
+                                /* --- SINGLE A4 SHEET PRINT STYLES --- */
         #report-view { display: none; }
         @media print {
-            body { background: white !important; color: black !important; margin: 0; padding: 0; overflow: visible; font-family: 'Plus Jakarta Sans', sans-serif; }
+            @page { margin: 10mm; size: A4 portrait; }
+            
+            /* Strip viewport height constraints to prevent phantom blank pages */
+            html, body { 
+                height: auto !important; 
+                min-height: auto !important; 
+                background: white !important; 
+                color: black !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                font-family: 'Plus Jakarta Sans', sans-serif; 
+                overflow: visible !important; 
+            }
+            
             .container, .ambient-glow, .header-controls, #modal-scenarios, #modal-explanation, footer, #toast { display: none !important; }
             
-            #report-view { display: block !important; width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; }
+            #report-view { display: block !important; width: 100%; max-width: 100%; margin: 0; padding: 0; }
             
-            .rpt-header { border-bottom: 2px solid var(--accent-teal); margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
-            .rpt-title h1 { color: var(--accent-teal); font-size: 24px; margin: 0; text-transform: uppercase; font-weight: 800; }
-            .rpt-title p { margin: 4px 0 0 0; color: #666; font-size: 12px; }
-            .rpt-meta { text-align: right; font-size: 12px; color: #444; }
+            .rpt-header { border-bottom: 2px solid var(--accent-teal); margin-bottom: 8px; padding-bottom: 4px; display: flex; justify-content: space-between; align-items: flex-end; }
+            .rpt-title h1 { color: #0f172a; font-size: 16px; margin: 0; text-transform: uppercase; font-weight: 800; }
+            .rpt-title p { margin: 2px 0 0 0; color: #475569; font-size: 9px; }
+            .rpt-meta { text-align: right; font-size: 9px; color: #475569; }
             
-            .rpt-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; color: black; }
-            .rpt-table th, .rpt-table td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+            .rpt-section { margin-bottom: 8px; page-break-inside: avoid; }
+            .rpt-h2 { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; margin-bottom: 4px; }
+            
+            /* Side-by-side table grid */
+            .rpt-inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+            
+            .rpt-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 4px; color: black; }
+            .rpt-table th, .rpt-table td { border: 1px solid #cbd5e1; padding: 3px 5px; text-align: left; }
             .rpt-table th { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; color: #333; }
-        }
+            
+            /* Tighter formula blocks to save vertical space */
+            .rpt-formula-block { background: #f8fafc !important; border: 1px solid #cbd5e1; padding: 4px 6px; margin-bottom: 4px; border-radius: 4px; font-family: monospace; font-size: 8.5px; -webkit-print-color-adjust: exact; print-color-adjust: exact; page-break-inside: avoid; }
+            .rpt-formula-line { margin-bottom: 1px; color: #334155; }
+            .rpt-formula-sub { color: #0369a1; }
+            .rpt-highlight { font-weight: bold; color: #0f172a; }
+            .mono { font-family: monospace; }
 
+            .rpt-footer { margin-top: 12px; text-align: center; font-size: 9px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 6px; page-break-inside: avoid; }
+        }
     </style>
 </head>
 <body>
@@ -354,6 +381,9 @@
                 <div class="menu-dropdown" id="main-menu">
                     <div class="menu-item" onclick="handleMenuAction('scenario')">
                         <i class="fas fa-folder-open"></i> Scenarios
+                    </div>
+                    <div class="menu-item" onclick="handleMenuAction('explain')">
+                        <i class="fas fa-calculator"></i> Calculation Breakdown
                     </div>
                     <div class="menu-item" onclick="handleMenuAction('share')">
                         <i class="fas fa-link"></i> Share Link
@@ -504,28 +534,36 @@
                     
                     <div class="grid-2">
                         <div class="input-group">
-                            <label>Specific Gravity</label>
+                            <label>Specific Gravity (&gamma;)</label>
                             <div class="input-wrapper">
                                 <input type="number" id="specificGravity" class="input-field calc-trigger" value="0.600" step="0.001">
                             </div>
                         </div>
+                        <div class="input-group">
+                            <label>Pipeline Efficiency (E)</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="pipelineEfficiency" class="input-field calc-trigger" value="1.00" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
                         <div class="input-group">
                             <label>Gas Viscosity (cP)</label>
                             <div class="input-wrapper">
                                 <input type="number" id="gasViscosity" class="input-field calc-trigger" value="0.010" step="0.001">
                             </div>
                         </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Compressibility Factor (Z)</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="compressibilityFactor" class="input-field calc-trigger" value="0.85" step="0.0001">
+                        <div class="input-group">
+                            <label>Compressibility (Z)</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="compressibilityFactor" class="input-field calc-trigger" value="0.85" step="0.0001">
+                            </div>
+                            <label class="checkbox-row">
+                                <input type="checkbox" id="autoCalculateZ" checked>
+                                <span>Auto (CNGA Method)</span>
+                            </label>
                         </div>
-                        <label class="checkbox-row" style="margin-top: 8px;">
-                            <input type="checkbox" id="autoCalculateZ" checked>
-                            <span>Auto-Calculate (CNGA Method)</span>
-                        </label>
                     </div>
                 </div>
 
@@ -556,7 +594,7 @@
                                 <select class="modern-select unit-select" data-field="pressureUpstream">
                                     <option value="psig">psig</option>
                                     <option value="barg">barg</option>
-                                    <option value="kg/cm2" selected>kg/cm²</option>
+                                    <option value="kg/cm2" selected>kg/cm²g</option>
                                 </select>
                             </div>
                         </div>
@@ -567,7 +605,7 @@
                                 <select class="modern-select unit-select" data-field="pressureDownstream">
                                     <option value="psig">psig</option>
                                     <option value="barg">barg</option>
-                                    <option value="kg/cm2" selected>kg/cm²</option>
+                                    <option value="kg/cm2" selected>kg/cm²g</option>
                                 </select>
                             </div>
                         </div>
@@ -700,7 +738,6 @@
                 </div>
 
                 <button id="calculateBtn" class="btn-calculate">Calculate Hydraulics</button>
-                <button id="showDetailsBtn" class="btn-outline"><i class="fas fa-info-circle" style="margin-right: 5px;"></i> View Calculation Breakdown</button>
 
             </div>
         </div> 
@@ -725,12 +762,12 @@
     </div>
 
     <div id="modal-explanation" class="modal-overlay" data-html2canvas-ignore>
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 850px;">
             <div class="modal-header">
-                <span class="modal-title"><i class="fas fa-calculator" style="color:var(--accent-teal); margin-right:8px;"></i> Calculation Breakdown</span>
+                <span class="modal-title"><i class="fas fa-calculator" style="color:var(--accent-teal); margin-right:8px;"></i> Detailed Calculation Breakdown</span>
                 <button class="modal-close" onclick="document.getElementById('modal-explanation').style.display='none'">&times;</button>
             </div>
-            <div id="dynamic-calc-content" style="font-size: 0.85rem; color: var(--text-primary); line-height: 1.6; font-family: 'Plus Jakarta Sans', monospace;"></div>
+            <div id="dynamic-calc-content" style="color: var(--text-primary); line-height: 1.6; font-family: 'Plus Jakarta Sans', monospace;"></div>
         </div>
     </div>
 
@@ -740,14 +777,14 @@
                 <h1>Hydraulics Calculation Report</h1>
                 <p>Generated by Pipeliner Tools</p>
             </div>
-            <div class="rpt-meta" id="rpt-date">Date: --/--/----</div>
+            <div class="rpt-meta">Date: <span id="rpt-date">--/--/----</span></div>
         </div>
         
-        <div id="rpt-body-content" style="font-size: 12px; color: black;">
+        <div id="rpt-body-content">
             </div>
 
-        <div style="margin-top:50px; text-align:center; font-size:10px; color:#999; border-top:1px solid #ccc; padding-top:10px;">
-            Calculations based on AGA Fully Turbulent Flow Equation.
+        <div class="rpt-footer">
+            Calculations based on native SI AGA Fully Turbulent Flow Equation and first-principles fluid dynamics.
         </div>
     </div>
 
@@ -759,6 +796,7 @@
             </div>
         </div>
     </footer>
+
     <script>
         // --- THEME INITIALIZATION & TOGGLE ---
         const htmlElement = document.documentElement;
@@ -785,16 +823,20 @@
         let calculationReportData = {}; 
         let savedScenarios = [];
 
-        // --- CONSTANTS & CONVERSIONS ---
+        // --- CONSTANTS & SI CONVERSIONS (BASE: METRIC) ---
         const CONVERSION_FACTORS = {
-            length: { mile: 1, km: 0.621371, ft: 1 / 5280 },
-            diameter: { inch: 1, mm: 1 / 25.4 },
-            pressure: { psig: 1, barg: 14.5038, kPa: 0.145038, 'kg/cm2': 14.2233 },
-            abs_pressure: { psia: 1, bara: 14.5038 },
-            temperature: { '°F': { toBase: f => f, fromBase: f => f }, '°C': { toBase: c => (c * 9/5) + 32, fromBase: f => (f - 32) * 5/9 } },
-            elevation: { ft: 1, m: 3.28084 },
-            flow: { MCFD: 1, MMSCFD: 1000, SCMH: (35.3147 * 24) / 1000, SCMD: 35.3147 / 1000, MMSCMD: (1000000 * 35.3147) / 1000 },
-            velocity: { 'ft/sec': 1, 'm/s': 3.28084 }
+            length: { km: 1, mile: 1.609344, ft: 0.0003048 },
+            diameter: { mm: 1, inch: 25.4 },
+            pressure: { kPa: 1, barg: 100, 'kg/cm2': 98.0665, psig: 6.894757 }, // Relative to base for gauge
+            abs_pressure: { kPa: 1, bara: 100, psia: 6.894757 }, 
+            temperature: { 
+                'K': { toBase: k => k, fromBase: k => k },
+                '°C': { toBase: c => c + 273.15, fromBase: k => k - 273.15 }, 
+                '°F': { toBase: f => (f - 32) * 5/9 + 273.15, fromBase: k => (k - 273.15) * 9/5 + 32 } 
+            },
+            elevation: { m: 1, ft: 0.3048 },
+            flow: { SCMD: 1, MMSCMD: 1000000, SCMH: 24, MCFD: 28.3168466, MMSCFD: 28316.8466 },
+            velocity: { 'm/s': 1, 'ft/sec': 0.3048 }
         };
 
         const ROUGHNESS_DEFAULTS = { 
@@ -804,15 +846,17 @@
             'Custom': 0.0178 
         };
 
+        const AGA_METRIC_CONSTANT = 5.747e-4;
+
         // --- DOM ELEMENTS MAPPING ---
         const fields = {};
         const elementsToMap = [
             'nominalDiameter', 'outsideDiameter', 'wallThickness', 'internalDiameter', 
             'pipeLength', 'pipeRoughness', 'opTemperature', 'baseTemperature', 'basePressure', 
             'pressureUpstream', 'pressureDownstream', 'flowRate', 'specificGravity', 
-            'compressibilityFactor', 'transmissionFactor', 'velocity', 'erosionalVelocity', 
-            'sonicVelocity', 'upstreamElevation', 'downstreamElevation', 'specificHeatRatio', 
-            'gasViscosity', 'reynoldsNumber'
+            'pipelineEfficiency', 'compressibilityFactor', 'transmissionFactor', 'velocity', 
+            'erosionalVelocity', 'sonicVelocity', 'upstreamElevation', 'downstreamElevation', 
+            'specificHeatRatio', 'gasViscosity', 'reynoldsNumber'
         ];
         elementsToMap.forEach(id => { fields[id] = document.getElementById(id); });
 
@@ -825,8 +869,6 @@
         const pipeMaterialSelect = document.getElementById('pipeMaterial');
 
         // --- CORE UI LOGIC ---
-        
-        // Material Dropdown Logic
         pipeMaterialSelect.addEventListener('change', () => {
             const material = pipeMaterialSelect.value;
             if (ROUGHNESS_DEFAULTS[material] !== undefined) {
@@ -839,7 +881,6 @@
             }
         });
         
-        // Calculation Mode Changes (Targets UI Highlight)
         modeSelect.addEventListener('change', (e) => {
             currentMode = e.target.value;
             updateUIForMode();
@@ -853,14 +894,12 @@
                 { input: fields.internalDiameter, wrapper: document.getElementById('wrap-internalDiameter') }
             ];
 
-            // Reset all styles
             targets.forEach(t => {
                 t.input.readOnly = false;
                 t.input.classList.remove('is-target-result');
                 if(t.wrapper) t.wrapper.classList.remove('is-target-wrapper');
             });
 
-            // Apply Target Highlights
             let activeTarget;
             switch(currentMode) {
                 case 'flowRate': activeTarget = targets[0]; break;
@@ -875,7 +914,6 @@
             }
         }
 
-        // Unit Conversion Logic
         function getFieldType(fieldName) {
             if (fieldName.toLowerCase().includes('pressure')) return fieldName.includes('base') ? 'abs_pressure' : 'pressure';
             if (fieldName.toLowerCase().includes('temperature')) return 'temperature';
@@ -918,8 +956,7 @@
 
             let newValue;
             if (fieldType === 'temperature') {
-                const tempInF = isOutput ? baseValue - 459.67 : baseValue;
-                newValue = CONVERSION_FACTORS.temperature[newUnit].fromBase(tempInF);
+                newValue = CONVERSION_FACTORS.temperature[newUnit].fromBase(baseValue);
             } else {
                 newValue = baseValue / CONVERSION_FACTORS[fieldType][newUnit];
             }
@@ -939,12 +976,11 @@
             s.addEventListener('change', (e) => handleUnitChange(e.target));
         });
 
-        // Pipe Geometry Sync
         fields.nominalDiameter.addEventListener('change', () => {
             const nominalMM = parseFloat(fields.nominalDiameter.value);
             if(nominalMM) {
                 const odInch = nominalMM / 25.4;
-                setDisplayUnitValue('outsideDiameter', odInch, 'diameter');
+                setDisplayUnitValue('outsideDiameter', nominalMM, 'diameter');
                 updateInternalDiameter();
             }
         });
@@ -962,7 +998,6 @@
         fields.outsideDiameter.addEventListener('input', updateInternalDiameter);
         fields.wallThickness.addEventListener('input', updateInternalDiameter);
 
-        // Z-Factor Logic
         autoCalculateZCheckbox.addEventListener('change', () => {
             if(autoCalculateZCheckbox.checked) {
                 fields.compressibilityFactor.readOnly = true;
@@ -974,7 +1009,6 @@
             }
         });
 
-        // Utility: Get/Set Values respecting units
         function getBaseUnitValue(fieldName) {
             const field = fields[fieldName];
             if (!field) return NaN;
@@ -983,7 +1017,7 @@
             const unit = field.dataset.currentUnit;
             const type = getFieldType(fieldName);
             
-            if (type === 'temperature') return CONVERSION_FACTORS.temperature[unit].toBase(val) + 459.67; 
+            if (type === 'temperature') return CONVERSION_FACTORS.temperature[unit].toBase(val); 
             return val * CONVERSION_FACTORS[type][unit];
         }
 
@@ -996,7 +1030,7 @@
             
             let displayVal;
             if (fieldType === 'temperature') {
-                displayVal = CONVERSION_FACTORS.temperature[unit].fromBase(baseValue - 459.67);
+                displayVal = CONVERSION_FACTORS.temperature[unit].fromBase(baseValue);
             } else {
                 displayVal = baseValue / CONVERSION_FACTORS[fieldType][unit];
             }
@@ -1007,7 +1041,7 @@
             field.value = displayVal.toFixed(displayPrecision);
         }
 
-        // --- MAIN CALCULATION ENGINE ---
+        // --- NATIVE SI CALCULATION ENGINE ---
         calculateBtn.addEventListener('click', performCalculations);
         cFactorSelector.addEventListener('change', performCalculations);
 
@@ -1015,120 +1049,130 @@
             try {
                 calculationReportData = {};
 
-                const Tb_R = getBaseUnitValue('baseTemperature');
-                const T_avg_R = getBaseUnitValue('opTemperature');
-                const Pb_psia = getBaseUnitValue('basePressure');
-                const L_miles = getBaseUnitValue('pipeLength');
-                const D_in_base = getBaseUnitValue('internalDiameter');
-                const e_in = getBaseUnitValue('pipeRoughness');
-                const G = parseFloat(fields.specificGravity.value);
+                // 1. Fetch parameters natively in SI
+                const Tb_K = getBaseUnitValue('baseTemperature');
+                const T_avg_K = getBaseUnitValue('opTemperature');
+                const Pb_kPa = getBaseUnitValue('basePressure'); // Absolute
+                const L_km = getBaseUnitValue('pipeLength');
+                const D_mm = getBaseUnitValue('internalDiameter');
+                const e_mm = getBaseUnitValue('pipeRoughness');
+                const gamma = parseFloat(fields.specificGravity.value);
+                const E = parseFloat(fields.pipelineEfficiency.value) || 1.00;
                 const k = parseFloat(document.getElementById('specificHeatRatio').value);
                 const viscosity_cP = parseFloat(fields.gasViscosity.value);
-                const H1_ft = getBaseUnitValue('upstreamElevation');
-                const H2_ft = getBaseUnitValue('downstreamElevation');
+                const H1_m = getBaseUnitValue('upstreamElevation');
+                const H2_m = getBaseUnitValue('downstreamElevation');
 
+                // Evaluate Pressures (Gauge to Absolute kPa)
+                let P1_kPaa = null; let P2_kPaa = null;
+                if (currentMode !== 'flowRate') {
+                    P1_kPaa = getBaseUnitValue('pressureUpstream') + Pb_kPa;
+                    if (currentMode !== 'downstreamPressure') P2_kPaa = getBaseUnitValue('pressureDownstream') + Pb_kPa;
+                } else {
+                    P1_kPaa = getBaseUnitValue('pressureUpstream') + Pb_kPa;
+                    P2_kPaa = getBaseUnitValue('pressureDownstream') + Pb_kPa;
+                }
+
+                // 2. Empirical Z-Factor (Translated CNGA)
                 let Z = parseFloat(fields.compressibilityFactor.value);
                 if(autoCalculateZCheckbox.checked) {
-                    let P_est_psia;
-                    if(currentMode === 'downstreamPressure') {
-                        P_est_psia = getBaseUnitValue('pressureUpstream') + Pb_psia;
-                    } else {
-                        const p1 = getBaseUnitValue('pressureUpstream') + Pb_psia;
-                        const p2 = getBaseUnitValue('pressureDownstream') + Pb_psia;
-                        P_est_psia = (p1 + p2) / 2;
-                    }
-                    if(!isNaN(P_est_psia)) {
-                        const P_avg_psig = P_est_psia - 14.7;
+                    let P_est_kPa = P1_kPaa; 
+                    if(P1_kPaa && P2_kPaa) P_est_kPa = (2/3) * (P1_kPaa + P2_kPaa - ((P1_kPaa * P2_kPaa) / (P1_kPaa + P2_kPaa)));
+
+                    if(!isNaN(P_est_kPa)) {
+                        const P_avg_psig = (P_est_kPa / 6.894757) - 14.73; 
+                        const T_avg_R = T_avg_K * 1.8;
                         if(P_avg_psig > 0) {
-                             const num = 344400 * P_avg_psig * Math.pow(10, 1.785 * G);
+                             const num = 344400 * P_avg_psig * Math.pow(10, 1.785 * gamma);
                              const den = Math.pow(T_avg_R, 3.825);
                              Z = 1 / (1 + (num/den));
                              fields.compressibilityFactor.value = Z.toFixed(4);
-                        } else {
-                            Z = 1.0;
-                            fields.compressibilityFactor.value = "1.0000";
-                        }
+                        } else { Z = 1.0; fields.compressibilityFactor.value = "1.0000"; }
                     }
                 }
 
-                if ([Tb_R, T_avg_R, Pb_psia, L_miles, e_in, G, Z].some(isNaN)) return;
+                if ([Tb_K, T_avg_K, Pb_kPa, L_km, e_mm, gamma, Z].some(isNaN)) return;
 
-                const F = 4 * Math.log10(3.7 * (D_in_base||1) / e_in);
-                const s = (0.0375 * G * (H2_ft - H1_ft)) / (T_avg_R * Z);
+                // 3. Flow Factors
+                const F = 4 * Math.log10(3.7 * (D_mm||1) / e_mm);
+                const s = (0.06835 * gamma * (H2_m - H1_m)) / (T_avg_K * Z);
                 const es = Math.exp(s);
                 
-                let P1_psia, P2_psia, Q_scfd;
-                let friction_term = null, pressure_term = null;
-
+                let Q_Sm3d;
+                
+                // 4. Metric AGA State Solver (Now including Efficiency E)
                 if (currentMode === 'downstreamPressure') {
-                    P1_psia = getBaseUnitValue('pressureUpstream') + Pb_psia;
-                    const Q_mcfd = getBaseUnitValue('flowRate');
-                    Q_scfd = Q_mcfd * 1000;
-                    
-                    friction_term = (Math.pow(Q_scfd / (38.77 * F * (Tb_R / Pb_psia)), 2) * (G * T_avg_R * L_miles * Z) / Math.pow(D_in_base, 5));
-                    const P2_sq = (Math.pow(P1_psia, 2) - friction_term) / es;
+                    Q_Sm3d = getBaseUnitValue('flowRate');
+                    const friction_term = Math.pow(Q_Sm3d / (AGA_METRIC_CONSTANT * E * F * (Tb_K / Pb_kPa) * Math.pow(D_mm, 2.5)), 2) * gamma * T_avg_K * L_km * Z;
+                    const P2_sq = (Math.pow(P1_kPaa, 2) - friction_term) / es;
                     
                     if(P2_sq < 0) throw new Error("Pressure loss exceeds upstream pressure.");
-                    P2_psia = Math.sqrt(P2_sq);
-                    setDisplayUnitValue('pressureDownstream', P2_psia - Pb_psia, 'pressure');
+                    P2_kPaa = Math.sqrt(P2_sq);
+                    setDisplayUnitValue('pressureDownstream', P2_kPaa - Pb_kPa, 'pressure');
 
                 } else if (currentMode === 'flowRate') {
-                    P1_psia = getBaseUnitValue('pressureUpstream') + Pb_psia;
-                    P2_psia = getBaseUnitValue('pressureDownstream') + Pb_psia;
-                    
-                    pressure_term = Math.pow(P1_psia, 2) - Math.pow(P2_psia, 2) * es;
+                    const pressure_term = Math.pow(P1_kPaa, 2) - Math.pow(P2_kPaa, 2) * es;
                     if(pressure_term < 0) throw new Error("Upstream pressure < Downstream pressure (adjusted for elevation).");
                     
-                    const flow_term = Math.sqrt(pressure_term / (G * T_avg_R * L_miles * Z));
-                    Q_scfd = 38.77 * F * (Tb_R / Pb_psia) * flow_term * Math.pow(D_in_base, 2.5);
-                    setDisplayUnitValue('flowRate', Q_scfd / 1000, 'flow');
+                    const flow_term = Math.sqrt(pressure_term / (gamma * T_avg_K * L_km * Z));
+                    Q_Sm3d = AGA_METRIC_CONSTANT * E * F * (Tb_K / Pb_kPa) * flow_term * Math.pow(D_mm, 2.5);
+                    setDisplayUnitValue('flowRate', Q_Sm3d, 'flow');
 
                 } else if (currentMode === 'pipeDiameter') {
-                    P1_psia = getBaseUnitValue('pressureUpstream') + Pb_psia;
-                    P2_psia = getBaseUnitValue('pressureDownstream') + Pb_psia;
-                    const Q_mcfd = getBaseUnitValue('flowRate');
-                    Q_scfd = Q_mcfd * 1000;
-
-                    pressure_term = Math.pow(P1_psia, 2) - Math.pow(P2_psia, 2) * es;
+                    Q_Sm3d = getBaseUnitValue('flowRate');
+                    const pressure_term = Math.pow(P1_kPaa, 2) - Math.pow(P2_kPaa, 2) * es;
                     if(pressure_term < 0) throw new Error("Invalid pressures.");
                     
-                    const dia_term_sq = (Math.pow(Q_scfd, 2) * G * T_avg_R * L_miles * Z) / (Math.pow(38.77 * F * (Tb_R / Pb_psia), 2) * pressure_term);
-                    const calc_D = Math.pow(dia_term_sq, 1/5);
-                    setDisplayUnitValue('internalDiameter', calc_D, 'diameter');
+                    const dia_term_sq = (Math.pow(Q_Sm3d, 2) * gamma * T_avg_K * L_km * Z) / (Math.pow(AGA_METRIC_CONSTANT * E * F * (Tb_K / Pb_kPa), 2) * pressure_term);
+                    const calc_D_mm = Math.pow(dia_term_sq, 1/5);
+                    setDisplayUnitValue('internalDiameter', calc_D_mm, 'diameter');
                 }
 
-                if(!P1_psia) P1_psia = getBaseUnitValue('pressureUpstream') + Pb_psia;
-                if(!P2_psia) P2_psia = getBaseUnitValue('pressureDownstream') + Pb_psia;
-                const final_D = getBaseUnitValue('internalDiameter');
-                const final_Q = getBaseUnitValue('flowRate') * 1000;
+                const final_D_mm = getBaseUnitValue('internalDiameter');
+                const final_Q_Sm3d = getBaseUnitValue('flowRate');
+                const P_avg_kPa = (2/3) * (P1_kPaa + P2_kPaa - ((P1_kPaa * P2_kPaa) / (P1_kPaa + P2_kPaa)));
 
-                const P_avg = (P1_psia + P2_psia) / 2;
-                const vel = (0.0000749 * final_Q * Z * T_avg_R) / (P_avg * Math.pow(final_D, 2));
-                const dens = (2.694 * G * P_avg) / (Z * T_avg_R);
+                // 5. First-Principles Mechanics (Exact Derivations)
+                const R_spec = 8314.46 / (gamma * 28.9628); 
+                const rho_kgm3 = (P_avg_kPa * 1000) / (R_spec * T_avg_K * Z);
+                
+                const Q_act_m3s = (final_Q_Sm3d / 86400) * (Pb_kPa / P_avg_kPa) * (T_avg_K / Tb_K) * Z;
+                const area_m2 = Math.PI * Math.pow(final_D_mm / 2000, 2);
+                const vel_ms = Q_act_m3s / area_m2;
+
+                const mass_flow_kgs = (final_Q_Sm3d / 86400) * ((Pb_kPa * 1000) / (R_spec * Tb_K));
+                const mu_Pa_s = viscosity_cP / 1000;
+                const Re = (4 * mass_flow_kgs) / (Math.PI * (final_D_mm / 1000) * mu_Pa_s);
+
                 const cFactor = parseFloat(cFactorSelector.value);
-                const erosional = cFactor / Math.sqrt(dens);
-                const sonic = Math.sqrt(k * 32.174 * Z * 96.3 * T_avg_R);
-                const Re = (0.48 * final_Q * G) / (viscosity_cP * final_D);
+                const rho_lbft3 = rho_kgm3 * 0.062428; // Converting strictly for empirical API 14E constant
+                const erosional_fts = cFactor / Math.sqrt(rho_lbft3);
+                const erosional_ms = erosional_fts * 0.3048;
 
+                const sonic_ms = Math.sqrt(k * Z * R_spec * T_avg_K);
+
+                // Update UI Diagnostics
                 fields.transmissionFactor.value = F.toFixed(3);
                 fields.reynoldsNumber.value = Re.toExponential(2);
                 reynoldsWarning.className = (Re < 4000) ? 'warning-box visible' : 'warning-box';
 
-                setDisplayUnitValue('velocity', vel, 'velocity');
-                setDisplayUnitValue('erosionalVelocity', erosional, 'velocity');
-                setDisplayUnitValue('sonicVelocity', sonic, 'velocity');
+                setDisplayUnitValue('velocity', vel_ms, 'velocity');
+                setDisplayUnitValue('erosionalVelocity', erosional_ms, 'velocity');
+                setDisplayUnitValue('sonicVelocity', sonic_ms, 'velocity');
 
+                // Pass comprehensive variables to modal & print report
                 calculationReportData = { 
-                    P1: P1_psia, P2: P2_psia, Q: final_Q, D: final_D, L: L_miles,
-                    F, s, es, Re, Z, vel, erosional, sonic, mode: currentMode 
+                    P1: P1_kPaa, P2: P2_kPaa, Q: final_Q_Sm3d, D: final_D_mm, L: L_km,
+                    F: F, s: s, es: es, Re: Re, Z: Z, vel: vel_ms, erosional: erosional_ms, sonic: sonic_ms, mode: currentMode,
+                    Tb: Tb_K, Tavg: T_avg_K, Pb: Pb_kPa, e: e_mm, G: gamma, E: E, k: k, visc: viscosity_cP,
+                    H1: H1_m, H2: H2_m, Pavg: P_avg_kPa, Rspec: R_spec, rho: rho_kgm3, Qact: Q_act_m3s,
+                    Area: area_m2, massFlow: mass_flow_kgs, C: cFactor
                 };
 
                 updateBreakdownModal();
                 preparePrintReport();
 
-            } catch(e) {
-                console.log(e);
-            }
+            } catch(e) { console.log(e); }
         }
 
         // --- MENU, MODALS, & SCENARIOS ---
@@ -1138,19 +1182,20 @@
         window.handleMenuAction = function(act) {
             document.getElementById('main-menu').classList.remove('show');
             if(act === 'scenario') { document.getElementById('modal-scenarios').style.display = 'flex'; renderScenarioList(); }
-            if(act === 'explain') { document.getElementById('modal-explanation').style.display = 'flex'; }
-            if(act === 'report') { window.print(); }
+            if(act === 'explain') { 
+                if(!calculationReportData.P1) { showToast("Please calculate first."); return; }
+                document.getElementById('modal-explanation').style.display = 'flex'; 
+            }
+            if(act === 'report') { 
+                if(!calculationReportData.P1) { showToast("Please calculate first."); return; }
+                window.print(); 
+            }
             if(act === 'share') { copyShareLink(); }
         }
 
         window.closeModal = function() { 
             document.getElementById('modal-scenarios').style.display = 'none'; 
         }
-
-        document.getElementById('showDetailsBtn').addEventListener('click', () => {
-            if(!calculationReportData.P1) { showToast("Please calculate first."); return; }
-            document.getElementById('modal-explanation').style.display = 'flex';
-        });
 
         // Scenario Manager
         window.saveScenario = function() { 
@@ -1230,29 +1275,140 @@
             navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}?${p.toString()}`).then(() => showToast("Link Copied!")); 
         }
 
-        // Breakdown UI Generator
         function updateBreakdownModal() {
             if(!calculationReportData.P1) return;
             const d = calculationReportData;
+            
+            let targetCalcBlock = '';
+            if (d.mode === 'flowRate') {
+                targetCalcBlock = `
+                    <div class="report-section">
+                        <h3><span class="step-num">7</span> Target Calculation (Metric AGA)</h3>
+                        <div class="formula-block">
+                            <div class="formula-line"><b>Flow Capacity (Q):</b> Q = 5.747e-4 &times; E &times; F &times; (T<sub>b</sub>/P<sub>b</sub>) &times; &radic;[(P<sub>1</sub>&sup2; - e<sup>s</sup>P<sub>2</sub>&sup2;) / (&gamma; &times; T<sub>avg</sub> &times; L &times; Z)] &times; D<sup>2.5</sup></div>
+                            <div class="formula-line formula-sub">Q = 5.747e-4 &times; ${d.E.toFixed(2)} &times; ${d.F.toFixed(4)} &times; (${d.Tb.toFixed(2)}/${d.Pb.toFixed(2)}) &times; &radic;[(${d.P1.toFixed(2)}&sup2; - ${d.es.toFixed(5)} &times; ${d.P2.toFixed(2)}&sup2;) / (${d.G.toFixed(3)} &times; ${d.Tavg.toFixed(2)} &times; ${d.L.toFixed(3)} &times; ${d.Z.toFixed(4)})] &times; ${d.D.toFixed(2)}<sup>2.5</sup></div>
+                        </div>
+                        <div class="report-line"><span>Result</span> <span class="report-val">${d.Q.toExponential(3)} Sm&sup3;/d</span></div>
+                    </div>`;
+            } else if (d.mode === 'downstreamPressure') {
+                targetCalcBlock = `
+                    <div class="report-section">
+                        <h3><span class="step-num">7</span> Target Calculation (Metric AGA)</h3>
+                        <div class="formula-block">
+                            <div class="formula-line"><b>Downstream Pressure (P<sub>2</sub>):</b> P<sub>2</sub> = &radic;[P<sub>1</sub>&sup2; - (Q / (5.747e-4 &times; E &times; F &times; (T<sub>b</sub>/P<sub>b</sub>) &times; D<sup>2.5</sup>))&sup2; &times; &gamma; &times; T<sub>avg</sub> &times; L &times; Z &times; e<sup>s</sup>]</div>
+                            <div class="formula-line formula-sub">P<sub>2</sub> = &radic;[${d.P1.toFixed(2)}&sup2; - (${d.Q.toExponential(3)} / (5.747e-4 &times; ${d.E.toFixed(2)} &times; ${d.F.toFixed(4)} &times; (${d.Tb.toFixed(2)}/${d.Pb.toFixed(2)}) &times; ${d.D.toFixed(2)}<sup>2.5</sup>))&sup2; &times; ${d.G.toFixed(3)} &times; ${d.Tavg.toFixed(2)} &times; ${d.L.toFixed(3)} &times; ${d.Z.toFixed(4)} &times; ${d.es.toFixed(5)}]</div>
+                        </div>
+                        <div class="report-line"><span>Result</span> <span class="report-val">${d.P2.toFixed(2)} kPaa</span></div>
+                    </div>`;
+            } else if (d.mode === 'pipeDiameter') {
+                targetCalcBlock = `
+                    <div class="report-section">
+                        <h3><span class="step-num">7</span> Target Calculation (Metric AGA)</h3>
+                        <div class="formula-block">
+                            <div class="formula-line"><b>Internal Diameter (D):</b> D = [(Q&sup2; &times; &gamma; &times; T<sub>avg</sub> &times; L &times; Z) / ((5.747e-4 &times; E &times; F &times; (T<sub>b</sub>/P<sub>b</sub>))&sup2; &times; (P<sub>1</sub>&sup2; - e<sup>s</sup>P<sub>2</sub>&sup2;))]<sup>1/5</sup></div>
+                            <div class="formula-line formula-sub">D = [(${d.Q.toExponential(3)}&sup2; &times; ${d.G.toFixed(3)} &times; ${d.Tavg.toFixed(2)} &times; ${d.L.toFixed(3)} &times; ${d.Z.toFixed(4)}) / ((5.747e-4 &times; ${d.E.toFixed(2)} &times; ${d.F.toFixed(4)} &times; (${d.Tb.toFixed(2)}/${d.Pb.toFixed(2)}))&sup2; &times; (${d.P1.toFixed(2)}&sup2; - ${d.es.toFixed(5)} &times; ${d.P2.toFixed(2)}&sup2;))]<sup>1/5</sup></div>
+                        </div>
+                        <div class="report-line"><span>Result</span> <span class="report-val">${d.D.toFixed(2)} mm</span></div>
+                    </div>`;
+            }
+            
             const html = `
                 <div class="report-section">
-                    <h3>Key Results</h3>
-                    <div class="report-line"><span>Upstream Pressure</span> <span class="report-val">${d.P1.toFixed(2)} psia</span></div>
-                    <div class="report-line"><span>Downstream Pressure</span> <span class="report-val">${d.P2.toFixed(2)} psia</span></div>
-                    <div class="report-line"><span>Flow Rate</span> <span class="report-val">${d.Q.toExponential(3)} SCFD</span></div>
+                    <h3><span class="step-num">1</span> Average Pressure (P<sub>avg</sub>)</h3>
+                    <div class="formula-block">
+                        <div class="formula-line">P<sub>avg</sub> = (2/3) &times; [P<sub>1</sub> + P<sub>2</sub> - (P<sub>1</sub> &times; P<sub>2</sub>) / (P<sub>1</sub> + P<sub>2</sub>)]</div>
+                        <div class="formula-line formula-sub">P<sub>avg</sub> = (2/3) &times; [${d.P1.toFixed(2)} + ${d.P2.toFixed(2)} - (${d.P1.toFixed(2)} &times; ${d.P2.toFixed(2)}) / (${d.P1.toFixed(2)} + ${d.P2.toFixed(2)})]</div>
+                    </div>
+                    <div class="report-line"><span>Result</span> <span class="report-val">${d.Pavg.toFixed(2)} kPaa</span></div>
                 </div>
+
                 <div class="report-section">
-                    <h3>Flow Characteristics</h3>
-                    <div class="report-line"><span>Reynolds Number</span> <span class="report-val">${d.Re.toExponential(2)}</span></div>
-                    <div class="report-line"><span>Transmission Factor (F)</span> <span class="report-val">${d.F.toFixed(4)}</span></div>
-                    <div class="report-line"><span>Elevation Factor (s)</span> <span class="report-val">${d.s.toFixed(4)}</span></div>
-                    <div class="report-line"><span>Compressibility (Z)</span> <span class="report-val">${d.Z.toFixed(4)}</span></div>
+                    <h3><span class="step-num">2</span> Compressibility Factor (Z)</h3>
+                    <div class="formula-block">
+                        <div class="formula-line">Z = CNGA Equation</div>
+                        <div class="formula-line formula-sub">Evaluated at P<sub>avg</sub> = ${d.Pavg.toFixed(2)} kPaa, T<sub>avg</sub> = ${d.Tavg.toFixed(2)} K, &gamma; = ${d.G.toFixed(3)}</div>
+                    </div>
+                    <div class="report-line"><span>Result</span> <span class="report-val">${d.Z.toFixed(4)}</span></div>
                 </div>
+
                 <div class="report-section">
-                    <h3>Velocities</h3>
-                    <div class="report-line"><span>Actual Gas Velocity</span> <span class="report-val">${d.vel.toFixed(2)} ft/s</span></div>
-                    <div class="report-line"><span>Erosional Limit</span> <span class="report-val">${d.erosional.toFixed(2)} ft/s</span></div>
-                    <div class="report-line"><span>Sonic Velocity</span> <span class="report-val">${d.sonic.toFixed(2)} ft/s</span></div>
+                    <h3><span class="step-num">3</span> Specific Gas Constant (R<sub>spec</sub>)</h3>
+                    <div class="formula-block">
+                        <div class="formula-line">R<sub>spec</sub> = 8314.46 / (&gamma; &times; 28.9628)</div>
+                        <div class="formula-line formula-sub">R<sub>spec</sub> = 8314.46 / (${d.G.toFixed(3)} &times; 28.9628)</div>
+                    </div>
+                    <div class="report-line"><span>Result</span> <span class="report-val">${d.Rspec.toFixed(2)} J/kg&middot;K</span></div>
+                </div>
+
+                <div class="report-section">
+                    <h3><span class="step-num">4</span> In-Situ Gas Density (&rho;)</h3>
+                    <div class="formula-block">
+                        <div class="formula-line">&rho; = (P<sub>avg</sub> &times; 1000) / (Z &times; R<sub>spec</sub> &times; T<sub>avg</sub>)</div>
+                        <div class="formula-line formula-sub">&rho; = (${d.Pavg.toFixed(2)} &times; 1000) / (${d.Z.toFixed(4)} &times; ${d.Rspec.toFixed(2)} &times; ${d.Tavg.toFixed(2)})</div>
+                    </div>
+                    <div class="report-line"><span>Result</span> <span class="report-val">${d.rho.toFixed(4)} kg/m&sup3;</span></div>
+                </div>
+
+                <div class="report-section">
+                    <h3><span class="step-num">5</span> Transmission Factor (F)</h3>
+                    <div class="formula-block">
+                        <div class="formula-line">F = 4 &times; log<sub>10</sub>(3.7 &times; D / e)</div>
+                        <div class="formula-line formula-sub">F = 4 &times; log<sub>10</sub>(3.7 &times; ${d.D.toFixed(2)} / ${d.e.toFixed(4)})</div>
+                    </div>
+                    <div class="report-line"><span>Result</span> <span class="report-val">${d.F.toFixed(4)}</span></div>
+                </div>
+
+                <div class="report-section">
+                    <h3><span class="step-num">6</span> Elevation Factor (s)</h3>
+                    <div class="formula-block">
+                        <div class="formula-line">s = (0.06835 &times; &gamma; &times; (H<sub>2</sub> - H<sub>1</sub>)) / (T<sub>avg</sub> &times; Z)</div>
+                        <div class="formula-line formula-sub">s = (0.06835 &times; ${d.G.toFixed(3)} &times; (${d.H2.toFixed(2)} - ${d.H1.toFixed(2)})) / (${d.Tavg.toFixed(2)} &times; ${d.Z.toFixed(4)})</div>
+                    </div>
+                    <div class="report-line"><span>Result (s)</span> <span class="report-val">${d.s.toFixed(5)}</span></div>
+                    <div class="report-line"><span>Result (e<sup>s</sup>)</span> <span class="report-val">${d.es.toFixed(5)}</span></div>
+                </div>
+
+                ${targetCalcBlock}
+
+                <div class="report-section">
+                    <h3><span class="step-num">8</span> Actual Gas Velocity (V<sub>act</sub>)</h3>
+                    <div class="formula-block">
+                        <div class="formula-line">Q<sub>act</sub> = (Q / 86400) &times; (P<sub>b</sub> / P<sub>avg</sub>) &times; (T<sub>avg</sub> / T<sub>b</sub>) &times; Z</div>
+                        <div class="formula-line formula-sub">Q<sub>act</sub> = (${d.Q.toExponential(3)} / 86400) &times; (${d.Pb.toFixed(2)} / ${d.Pavg.toFixed(2)}) &times; (${d.Tavg.toFixed(2)} / ${d.Tb.toFixed(2)}) &times; ${d.Z.toFixed(4)} = ${d.Qact.toFixed(4)} m&sup3;/s</div>
+                        <div class="formula-line" style="margin-top:8px;">A = &pi; &times; (D / 2000)&sup2;</div>
+                        <div class="formula-line formula-sub">A = &pi; &times; (${d.D.toFixed(2)} / 2000)&sup2; = ${d.Area.toFixed(4)} m&sup2;</div>
+                        <div class="formula-line" style="margin-top:8px;">V<sub>act</sub> = Q<sub>act</sub> / A</div>
+                    </div>
+                    <div class="report-line"><span>Result</span> <span class="report-val">${d.vel.toFixed(2)} m/s</span></div>
+                </div>
+
+                <div class="report-section">
+                    <h3><span class="step-num">9</span> Mass Flow Rate &amp; Reynolds No. (Re)</h3>
+                    <div class="formula-block">
+                        <div class="formula-line">&dot;m = (Q / 86400) &times; (P<sub>b</sub> &times; 1000) / (R<sub>spec</sub> &times; T<sub>b</sub>)</div>
+                        <div class="formula-line formula-sub">&dot;m = (${d.Q.toExponential(3)} / 86400) &times; (${d.Pb.toFixed(2)} &times; 1000) / (${d.Rspec.toFixed(2)} &times; ${d.Tb.toFixed(2)}) = ${d.massFlow.toFixed(2)} kg/s</div>
+                        <div class="formula-line" style="margin-top:8px;">Re = (4 &times; &dot;m) / (&pi; &times; D<sub>(m)</sub> &times; &mu;<sub>(Pa&middot;s)</sub>)</div>
+                        <div class="formula-line formula-sub">Re = (4 &times; ${d.massFlow.toFixed(2)}) / (&pi; &times; ${(d.D/1000).toFixed(4)} &times; ${(d.visc/1000).toExponential(2)})</div>
+                    </div>
+                    <div class="report-line"><span>Result</span> <span class="report-val">${d.Re.toExponential(2)}</span></div>
+                </div>
+
+                <div class="report-section">
+                    <h3><span class="step-num">10</span> Erosional Limit (V<sub>e</sub>)</h3>
+                    <div class="formula-block">
+                        <div class="formula-line">V<sub>e(ft/s)</sub> = C / &radic;&rho;<sub>(lb/ft&sup3;)</sub> &nbsp;&nbsp;&rarr;&nbsp;&nbsp; V<sub>e(m/s)</sub> = V<sub>e(ft/s)</sub> &times; 0.3048</div>
+                        <div class="formula-line formula-sub">V<sub>e(ft/s)</sub> = ${d.C} / &radic;${(d.rho * 0.062428).toFixed(4)}</div>
+                    </div>
+                    <div class="report-line"><span>Result</span> <span class="report-val">${d.erosional.toFixed(2)} m/s</span></div>
+                </div>
+
+                <div class="report-section">
+                    <h3><span class="step-num">11</span> Sonic Velocity (V<sub>sonic</sub>)</h3>
+                    <div class="formula-block">
+                        <div class="formula-line">V<sub>sonic</sub> = &radic;(k &times; Z &times; R<sub>spec</sub> &times; T<sub>avg</sub>)</div>
+                        <div class="formula-line formula-sub">V<sub>sonic</sub> = &radic;(${d.k} &times; ${d.Z.toFixed(4)} &times; ${d.Rspec.toFixed(2)} &times; ${d.Tavg.toFixed(2)})</div>
+                    </div>
+                    <div class="report-line"><span>Result</span> <span class="report-val">${d.sonic.toFixed(2)} m/s</span></div>
                 </div>
             `;
             document.getElementById('dynamic-calc-content').innerHTML = html;
@@ -1263,25 +1419,142 @@
             const d = calculationReportData;
             document.getElementById('rpt-date').innerText = new Date().toLocaleString();
             
-            const html = `
-                <table class="rpt-table" style="margin-bottom: 20px;">
-                    <tr><th colspan="2">System Inputs</th></tr>
-                    <tr><td width="50%">Pipe ID</td><td>${fields.internalDiameter.value} ${fields.internalDiameter.dataset.currentUnit}</td></tr>
-                    <tr><td>Pipe Length</td><td>${fields.pipeLength.value} ${fields.pipeLength.dataset.currentUnit}</td></tr>
-                    <tr><td>Roughness</td><td>${fields.pipeRoughness.value} ${fields.pipeRoughness.dataset.currentUnit}</td></tr>
-                    <tr><td>Upstream Pressure</td><td>${fields.pressureUpstream.value} ${fields.pressureUpstream.dataset.currentUnit}</td></tr>
-                    <tr><td>Downstream Pressure</td><td>${fields.pressureDownstream.value} ${fields.pressureDownstream.dataset.currentUnit}</td></tr>
-                    <tr><td>Flow Rate</td><td>${fields.flowRate.value} ${fields.flowRate.dataset.currentUnit}</td></tr>
-                </table>
+            const fv = (id) => fields[id] ? `${fields[id].value} ${fields[id].dataset.currentUnit || ''}`.trim() : '';
 
-                <table class="rpt-table">
-                    <tr><th colspan="2">Diagnostic Results</th></tr>
-                    <tr><td width="50%">Reynolds Number</td><td>${d.Re.toExponential(2)}</td></tr>
-                    <tr><td>Transmission Factor (F)</td><td>${d.F.toFixed(4)}</td></tr>
-                    <tr><td>Compressibility (Z)</td><td>${d.Z.toFixed(4)}</td></tr>
-                    <tr><td>Gas Velocity</td><td>${d.vel.toFixed(2)} ft/s</td></tr>
-                    <tr><td>Erosional Velocity</td><td>${d.erosional.toFixed(2)} ft/s</td></tr>
-                </table>
+            // 1. Build and split the Inputs list dynamically
+            let inputRows = [];
+            if (d.mode !== 'pipeDiameter') inputRows.push(`<tr><td>Internal Diameter (D)</td><td>${fv('internalDiameter')}</td><td>${d.D.toFixed(2)} mm</td></tr>`);
+            inputRows.push(`<tr><td>Pipe Length (L)</td><td>${fv('pipeLength')}</td><td>${d.L.toFixed(3)} km</td></tr>`);
+            inputRows.push(`<tr><td>Roughness (e)</td><td>${fv('pipeRoughness')}</td><td>${d.e.toFixed(4)} mm</td></tr>`);
+            inputRows.push(`<tr><td>Upstream Elev. (H<sub>1</sub>)</td><td>${fv('upstreamElevation')}</td><td>${d.H1.toFixed(2)} m</td></tr>`);
+            inputRows.push(`<tr><td>Downstream Elev. (H<sub>2</sub>)</td><td>${fv('downstreamElevation')}</td><td>${d.H2.toFixed(2)} m</td></tr>`);
+            
+            inputRows.push(`<tr><td>Upstream Pres. (P<sub>1</sub>)</td><td>${fv('pressureUpstream')}</td><td>${d.P1.toFixed(2)} kPaa</td></tr>`);
+            if (d.mode !== 'downstreamPressure') inputRows.push(`<tr><td>Downstream Pres. (P<sub>2</sub>)</td><td>${fv('pressureDownstream')}</td><td>${d.P2.toFixed(2)} kPaa</td></tr>`);
+            if (d.mode !== 'flowRate') inputRows.push(`<tr><td>Flow Rate (Q)</td><td>${fv('flowRate')}</td><td>${d.Q.toExponential(3)} Sm&sup3;/d</td></tr>`);
+            
+            inputRows.push(`<tr><td>Operating Temp (T<sub>avg</sub>)</td><td>${fv('opTemperature')}</td><td>${d.Tavg.toFixed(2)} K</td></tr>`);
+            inputRows.push(`<tr><td>Base Temp (T<sub>b</sub>)</td><td>${fv('baseTemperature')}</td><td>${d.Tb.toFixed(2)} K</td></tr>`);
+            inputRows.push(`<tr><td>Base Pressure (P<sub>b</sub>)</td><td>${fv('basePressure')}</td><td>${d.Pb.toFixed(2)} kPaa</td></tr>`);
+            inputRows.push(`<tr><td>Specific Gravity (&gamma;)</td><td>${fields.specificGravity.value}</td><td>${d.G.toFixed(3)}</td></tr>`);
+            inputRows.push(`<tr><td>Efficiency (E)</td><td>${fields.pipelineEfficiency.value}</td><td>${d.E.toFixed(2)}</td></tr>`);
+            inputRows.push(`<tr><td>Viscosity (&mu;)</td><td>${fields.gasViscosity.value} cP</td><td>${d.visc.toFixed(3)} cP</td></tr>`);
+
+            // Split rows evenly for the two side-by-side tables
+            const half = Math.ceil(inputRows.length / 2);
+            const col1 = inputRows.slice(0, half).join('');
+            const col2 = inputRows.slice(half).join('');
+
+            // 2. Conditionally build the Target Calculation Block & Result Row
+            let targetCalcBlock = '';
+            let targetResultRow = '';
+            
+            if (d.mode === 'flowRate') {
+                targetCalcBlock = `
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>Flow Capacity (Q):</b> Q = 5.747e-4 * E * F * (T<sub>b</sub>/P<sub>b</sub>) * &radic;[(P<sub>1</sub>&sup2; - e<sup>s</sup>P<sub>2</sub>&sup2;) / (&gamma; * T<sub>avg</sub> * L * Z)] * D<sup>2.5</sup></div>
+                        <div class="rpt-formula-sub">Q = 5.747e-4 * ${d.E.toFixed(2)} * ${d.F.toFixed(4)} * (${d.Tb.toFixed(2)}/${d.Pb.toFixed(2)}) * &radic;[(${d.P1.toFixed(2)}&sup2; - ${d.es.toFixed(5)}*${d.P2.toFixed(2)}&sup2;) / (${d.G.toFixed(3)} * ${d.Tavg.toFixed(2)} * ${d.L.toFixed(3)} * ${d.Z.toFixed(4)})] * ${d.D.toFixed(2)}<sup>2.5</sup> = <b>${d.Q.toExponential(3)} Sm&sup3;/d</b></div>
+                    </div>`;
+                targetResultRow = `<tr><td><b>Flow Capacity</b> (Q)</td><td class="mono">Calculated above (AGA Metric Eq.)</td><td class="rpt-highlight">${d.Q.toExponential(3)} Sm&sup3;/d</td></tr>`;
+            } else if (d.mode === 'downstreamPressure') {
+                targetCalcBlock = `
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>Downstream Pressure (P<sub>2</sub>):</b> P<sub>2</sub> = &radic;[P<sub>1</sub>&sup2; - (Q / (5.747e-4 * E * F * (T<sub>b</sub>/P<sub>b</sub>) * D<sup>2.5</sup>))&sup2; * &gamma; * T<sub>avg</sub> * L * Z * e<sup>s</sup>]</div>
+                        <div class="rpt-formula-sub">P<sub>2</sub> = &radic;[${d.P1.toFixed(2)}&sup2; - (${d.Q.toExponential(3)} / (5.747e-4 * ${d.E.toFixed(2)} * ${d.F.toFixed(4)} * (${d.Tb.toFixed(2)}/${d.Pb.toFixed(2)}) * ${d.D.toFixed(2)}<sup>2.5</sup>))&sup2; * ${d.G.toFixed(3)} * ${d.Tavg.toFixed(2)} * ${d.L.toFixed(3)} * ${d.Z.toFixed(4)} * ${d.es.toFixed(5)}] = <b>${d.P2.toFixed(2)} kPaa</b></div>
+                    </div>`;
+                targetResultRow = `<tr><td><b>Downstream Pres.</b> (P<sub>2</sub>)</td><td class="mono">Calculated above (AGA Metric Eq.)</td><td class="rpt-highlight">${d.P2.toFixed(2)} kPaa</td></tr>`;
+            } else if (d.mode === 'pipeDiameter') {
+                targetCalcBlock = `
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>Internal Diameter (D):</b> D = [(Q&sup2; * &gamma; * T<sub>avg</sub> * L * Z) / ((5.747e-4 * E * F * (T<sub>b</sub>/P<sub>b</sub>))&sup2; * (P<sub>1</sub>&sup2; - e<sup>s</sup>P<sub>2</sub>&sup2;))]<sup>1/5</sup></div>
+                        <div class="rpt-formula-sub">D = [(${d.Q.toExponential(3)}&sup2; * ${d.G.toFixed(3)} * ${d.Tavg.toFixed(2)} * ${d.L.toFixed(3)} * ${d.Z.toFixed(4)}) / ((5.747e-4 * ${d.E.toFixed(2)} * ${d.F.toFixed(4)} * (${d.Tb.toFixed(2)}/${d.Pb.toFixed(2)}))&sup2; * (${d.P1.toFixed(2)}&sup2; - ${d.es.toFixed(5)}*${d.P2.toFixed(2)}&sup2;))]<sup>1/5</sup> = <b>${d.D.toFixed(2)} mm</b></div>
+                    </div>`;
+                targetResultRow = `<tr><td><b>Req. Internal Dia.</b> (D)</td><td class="mono">Calculated above (AGA Metric Eq.)</td><td class="rpt-highlight">${d.D.toFixed(2)} mm</td></tr>`;
+            }
+
+            const html = `
+                <div class="rpt-section">
+                    <div class="rpt-h2">1. Inputs & Conversions</div>
+                    <div class="rpt-inputs-grid">
+                        <table class="rpt-table">
+                            <tr><th width="40%">Parameter (Var)</th><th width="30%">User Input</th><th width="30%">SI Base</th></tr>
+                            ${col1}
+                        </table>
+                        <table class="rpt-table">
+                            <tr><th width="40%">Parameter (Var)</th><th width="30%">User Input</th><th width="30%">SI Base</th></tr>
+                            ${col2}
+                        </table>
+                    </div>
+                </div>
+
+                <div class="rpt-section">
+                    <div class="rpt-h2">2. Intermittent Calculations</div>
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>Average Pressure:</b> P<sub>avg</sub> = (2/3) * [P<sub>1</sub> + P<sub>2</sub> - (P<sub>1</sub>*P<sub>2</sub>)/(P<sub>1</sub>+P<sub>2</sub>)]</div>
+                        <div class="rpt-formula-sub">P<sub>avg</sub> = (2/3) * [${d.P1.toFixed(2)} + ${d.P2.toFixed(2)} - (${d.P1.toFixed(2)}*${d.P2.toFixed(2)})/(${d.P1.toFixed(2)}+${d.P2.toFixed(2)})] = <b>${d.Pavg.toFixed(2)} kPaa</b></div>
+                    </div>
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>Specific Gas Constant:</b> R<sub>spec</sub> = 8314.46 / (&gamma; * 28.9628)</div>
+                        <div class="rpt-formula-sub">R<sub>spec</sub> = 8314.46 / (${d.G.toFixed(3)} * 28.9628) = <b>${d.Rspec.toFixed(2)} J/kg&middot;K</b></div>
+                    </div>
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>Compressibility (CNGA):</b> Z = 1 / [1 + (344400 * P<sub>avg(psig)</sub> * 10^(1.785*&gamma;)) / T<sub>avg(R)</sub>^3.825]</div>
+                        <div class="rpt-formula-sub">Z = <b>${d.Z.toFixed(4)}</b></div>
+                    </div>
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>In-Situ Density:</b> &rho; = (P<sub>avg</sub> * 1000) / (Z * R<sub>spec</sub> * T<sub>avg</sub>)</div>
+                        <div class="rpt-formula-sub">&rho; = (${d.Pavg.toFixed(2)} * 1000) / (${d.Z.toFixed(4)} * ${d.Rspec.toFixed(2)} * ${d.Tavg.toFixed(2)}) = <b>${d.rho.toFixed(4)} kg/m&sup3;</b></div>
+                    </div>
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>Transmission Factor:</b> F = 4 * log10(3.7 * D / e)</div>
+                        <div class="rpt-formula-sub">F = 4 * log10(3.7 * ${d.D.toFixed(2)} / ${d.e.toFixed(4)}) = <b>${d.F.toFixed(4)}</b></div>
+                    </div>
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>Elevation Factor:</b> s = (0.06835 * &gamma; * &Delta;H) / (T<sub>avg</sub> * Z)</div>
+                        <div class="rpt-formula-sub">s = (0.06835 * ${d.G.toFixed(3)} * (${d.H2.toFixed(2)} - ${d.H1.toFixed(2)})) / (${d.Tavg.toFixed(2)} * ${d.Z.toFixed(4)}) = <b>${d.s.toFixed(5)}</b> &nbsp;(e<sup>s</sup> = ${d.es.toFixed(5)})</div>
+                    </div>
+                    
+                    ${targetCalcBlock}
+
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>Mass Flow Rate:</b> &dot;m = (Q / 86400) * (P<sub>b</sub> * 1000) / (R<sub>spec</sub> * T<sub>b</sub>)</div>
+                        <div class="rpt-formula-sub">&dot;m = (${d.Q.toExponential(3)} / 86400) * (${d.Pb.toFixed(2)} * 1000) / (${d.Rspec.toFixed(2)} * ${d.Tb.toFixed(2)}) = <b>${d.massFlow.toFixed(2)} kg/s</b></div>
+                    </div>
+                    <div class="rpt-formula-block">
+                        <div class="rpt-formula-line"><b>Actual Volume Flow:</b> Q<sub>act</sub> = (Q / 86400) * (P<sub>b</sub> / P<sub>avg</sub>) * (T<sub>avg</sub> / T<sub>b</sub>) * Z</div>
+                        <div class="rpt-formula-sub">Q<sub>act</sub> = (${d.Q.toExponential(3)} / 86400) * (${d.Pb.toFixed(2)} / ${d.Pavg.toFixed(2)}) * (${d.Tavg.toFixed(2)} / ${d.Tb.toFixed(2)}) * ${d.Z.toFixed(4)} = <b>${d.Qact.toFixed(4)} m&sup3;/s</b></div>
+                    </div>
+                </div>
+
+                <div class="rpt-section">
+                    <div class="rpt-h2">3. Results & Limits</div>
+                    <table class="rpt-table">
+                        <tr>
+                            <th width="25%">Parameter</th><th width="50%">Formula</th><th width="25%">Result</th>
+                        </tr>
+                        ${targetResultRow}
+                        <tr>
+                            <td><b>Actual Velocity</b> (V<sub>act</sub>)</td>
+                            <td class="mono">Q<sub>act</sub> / [&pi; * (D/2000)&sup2;]</td>
+                            <td class="rpt-highlight">${d.vel.toFixed(2)} m/s</td>
+                        </tr>
+                        <tr>
+                            <td><b>Reynolds Number</b> (Re)</td>
+                            <td class="mono">(4 * &dot;m) / (&pi; * D<sub>(m)</sub> * &mu;<sub>(Pa&middot;s)</sub>)</td>
+                            <td class="rpt-highlight">${d.Re.toExponential(2)}</td>
+                        </tr>
+                        <tr>
+                            <td><b>Erosional Limit</b> (V<sub>e</sub>)</td>
+                            <td class="mono">C / &radic;&rho;<sub>(lb/ft&sup3;)</sub> * 0.3048</td>
+                            <td class="rpt-highlight">${d.erosional.toFixed(2)} m/s</td>
+                        </tr>
+                        <tr>
+                            <td><b>Sonic Velocity</b> (V<sub>sonic</sub>)</td>
+                            <td class="mono">&radic;(k * Z * R<sub>spec</sub> * T<sub>avg</sub>)</td>
+                            <td class="rpt-highlight">${d.sonic.toFixed(2)} m/s</td>
+                        </tr>
+                    </table>
+                </div>
             `;
             document.getElementById('rpt-body-content').innerHTML = html;
         }
